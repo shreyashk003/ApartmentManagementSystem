@@ -9,7 +9,7 @@ function Maintainance({ oid }) {
   const [orderId, setOrderId] = useState('');
   const [message, setMessage] = useState('');
 
-  const payNow = async () => {
+  const payNow = async (M) => {
     try {
       const response = await axios.post('http://localhost:9000/api/create-order', {
         amount: parseFloat(amount),
@@ -27,6 +27,14 @@ function Maintainance({ oid }) {
       console.error('Error creating order:', error);
       setMessage('An error occurred while creating the order.');
     }
+
+    axios.post(`http://localhost:9000/api/getMaintainance`,{oid:oid,year:M.year,status:"Updated"})
+    .then(response=>{
+      alert("Updated")
+    })
+    .catch(err=>{
+      console.log(err)
+    })
   };
 
   const launchRazorpay = (orderId, amount) => {
@@ -72,6 +80,9 @@ function Maintainance({ oid }) {
 
     const razorpayInstance = new window.Razorpay(options);
     razorpayInstance.open();
+
+    
+
   };
 
   useEffect(() => {
@@ -83,7 +94,7 @@ function Maintainance({ oid }) {
       .catch((err) => {
         console.error('Error fetching maintenance data:', err);
       });
-  }, [oid]);
+  }, [oid , maintainance]);
 
   return (
     <div className="p-4 bg-gradient-to-b from-gray-800 to-gray-900 text-white">
@@ -126,7 +137,7 @@ function Maintainance({ oid }) {
                     <td className="border border-gray-600 p-2">
                       <button
                         className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-700 transition"
-                        onClick={payNow}
+                        onClick={()=>payNow (M)}
                       >
                         Make Payment
                       </button>

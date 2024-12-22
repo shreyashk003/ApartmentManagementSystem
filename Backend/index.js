@@ -296,6 +296,36 @@ app.get("/api/getMaintainance/:oid", async (req, res) => {
   }
 });
 
+
+app.post("/api/getMaintainance", async (req, res) => {
+  const { oid,year, status } = req.body;  // Assuming the body contains the year and the new status
+
+  try {
+    const collection = db.collection("Owners");
+
+    // Update the Maintainance array for the specific owner (oid) and year
+    const result = await collection.updateOne(
+      { oid: oid, "Maintainance.year": year }, // Find the Owner with the specified OID and year in Maintainance array
+      {
+        $set: {
+          "Maintainance.$.status": status // Update the status of the matching Maintainance entry
+        }
+      }
+    );
+
+    if (result.modifiedCount > 0) {
+      return res.json({ message: "Maintenance status updated successfully." });
+    } else {
+      return res.status(404).json({ message: "No maintenance entry found with the given year." });
+    }
+  } catch (error) {
+    console.error("Error updating maintenance data:", error);
+    return res.status(500).json({ message: "Server error. Please try again later." });
+  }
+});
+
+
+
 // Server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
