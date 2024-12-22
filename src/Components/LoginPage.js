@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const LoginPage = ({ setLoginStatus, setUserType }) => {
+const LoginPage = ({ setLoginStatus, setUserType, setOid, setUsername }) => {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -27,6 +27,11 @@ const LoginPage = ({ setLoginStatus, setUserType }) => {
 
       if (response.status === 200) {
         // Handle successful login
+        setOid(response.data.user[0].oid);
+
+        // Set the username dynamically
+        setUsername(response.data.user[0].Afname); // Update username
+
         setMessage(response.data.message);
         setUserType(response.data.userType); // Set userType from server response
         setLoginStatus(true); // Set login status to true

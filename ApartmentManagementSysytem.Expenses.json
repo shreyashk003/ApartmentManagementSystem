@@ -1,0 +1,208 @@
+[{
+  "_id": {
+    "$oid": "674b1e7b1402943e1fb82b4b"
+  },
+  "modeofpayment": "cash",
+  "personoragencyname": "rahul",
+  "amount": 35000,
+  "description": "water_bill",
+  "status": "paid",
+  "date": "2024-11-30",
+  "month": "November",
+  "year": "2024"
+},
+{
+  "_id": {
+    "$oid": "6751a862965eacba9e9d1645"
+  },
+  "date": "2024-04-03",
+  "description": "electricity_bill",
+  "status": "paid",
+  "modeOfPayment": "cash",
+  "personOrAgencyName": "omkar",
+  "amount": 222,
+  "month": "April",
+  "year": "2024"
+},
+{
+  "_id": {
+    "$oid": "6751a93b965eacba9e9d1646"
+  },
+  "date": "2024-01-17",
+  "amount": 3000,
+  "description": "electricity_bill",
+  "status": "paid",
+  "modeOfPayment": "Card",
+  "personOrAgencyName": "vinayak",
+  "month": "January",
+  "year": "2025"
+},
+{
+  "_id": {
+    "$oid": "6751a984965eacba9e9d1647"
+  },
+  "date": "2024-11-14",
+  "amount": 2500,
+  "description": "electricity_bill",
+  "status": "paid",
+  "modeOfPayment": "cash",
+  "personOrAgencyName": "rajesh",
+  "month": "November",
+  "year": "2025"
+},
+{
+  "_id": {
+    "$oid": "6751aa1b965eacba9e9d1648"
+  },
+  "date": "2024-11-20",
+  "amount": 1000,
+  "description": "water_bill",
+  "status": "paid",
+  "modeOfPayment": "cash",
+  "personOrAgencyName": "revan",
+  "month": "November",
+  "year": "2026"
+},
+{
+  "_id": {
+    "$oid": "6751aa34965eacba9e9d1649"
+  },
+  "date": "2024-12-15",
+  "amount": 1200,
+  "description": "water_bill",
+  "status": "paid",
+  "modeOfPayment": "card",
+  "personOrAgencyName": "paras",
+  "month": "December",
+  "year": "2024"
+},
+{
+  "_id": {
+    "$oid": "67530205e874402675a8a8ca"
+  },
+  "date": "2024-12-08",
+  "amount": 4500,
+  "description": "plumbing_charges",
+  "status": "paid",
+  "modeOfPayment": "cash",
+  "personOrAgencyName": "rahul",
+  "month": "December",
+  "year": "2025"
+},
+{
+  "_id": {
+    "$oid": "67530221e874402675a8a8cb"
+  },
+  "date": "2024-10-16",
+  "amount": 2500,
+  "description": "plumbing_charges",
+  "status": "paid",
+  "modeOfPayment": "cash",
+  "personOrAgencyName": "varun",
+  "month": "October",
+  "year": "2026"
+},
+{
+  "_id": {
+    "$oid": "67530247e874402675a8a8cc"
+  },
+  "date": "2024-11-18",
+  "amount": 15000,
+  "description": "lift_maintenance_charges",
+  "status": "paid",
+  "modeOfPayment": "card",
+  "personOrAgencyName": "darshan",
+  "month": "November",
+  "year": "2025"
+},
+{
+  "_id": {
+    "$oid": "67530262e874402675a8a8cd"
+  },
+  "date": "2024-12-25",
+  "amount": 5000,
+  "description": "lift_maintenance_charges",
+  "status": "paid",
+  "modeOfPayment": "cash",
+  "personOrAgencyName": "more",
+  "month": "December",
+  "year": "2025"
+},
+{
+  "_id": {
+    "$oid": "675302dae874402675a8a8ce"
+  },
+  "date": "2024-12-17",
+  "amount": 5000,
+  "description": "plumbing_charges",
+  "status": "paid",
+  "modeOfPayment": "cash",
+  "personOrAgencyName": "rahul",
+  "month": "December",
+  "year": "2024"
+},
+{
+  "_id": {
+    "$oid": "675302f8e874402675a8a8cf"
+  },
+  "date": "2024-12-25",
+  "amount": 10000,
+  "description": "lift_maintenance_charges",
+  "status": "pending",
+  "modeOfPayment": "card",
+  "personOrAgencyName": "likhit",
+  "month": "December",
+  "year": "2026"
+},
+{
+  "_id": {
+    "$oid": "675305ee938c615a47e7fb7b"
+  },
+  "date": "2024-12-02",
+  "amount": 45000,
+  "description": "others",
+  "status": "paid",
+  "modeOfPayment": "card",
+  "personOrAgencyName": "Tata",
+  "month": "December",
+  "year": "2027"
+},
+{
+  "_id": {
+    "$oid": "675307eb938c615a47e7fb7c"
+  },
+  "date": "2024-12-03",
+  "month": "December",
+  "amount": 25000,
+  "description": "tank_cleaning_charges",
+  "status": "paid",
+  "modeOfPayment": "card",
+  "personOrAgencyName": "local",
+  "year": "2028"
+},
+{
+  "_id": {
+    "$oid": "67545841e4e055e2d8498d8b"
+  },
+  "date": "2024-04-22",
+  "description": "electricity_bill",
+  "status": "paid",
+  "modeOfPayment": "cash",
+  "personOrAgencyName": "rahul",
+  "amount": 10222,
+  "month": "April",
+  "year": "2027"
+},
+{
+  "_id": {
+    "$oid": "67546dd5e4e055e2d8498d8c"
+  },
+  "date": "2024-11-18",
+  "amount": 1500,
+  "description": "electrician_charges",
+  "status": "paid",
+  "modeOfPayment": "card",
+  "personOrAgencyName": "darshan",
+  "month": "November",
+  "year": "2028"
+}]

@@ -6,32 +6,65 @@ import Secretary from "./Components/Secretary";
 import Owner from "./Components/Owner";
 import Security from "./Components/Security";
 import AdminDashboard from "./Components/AdminDashboard";
+import Home from "./Components/Home";
 
 function App() {
   const [loginStatus, setLoginStatus] = useState(false); // Tracks if the user is logged in
   const [userType, setUserType] = useState("");          // Tracks the type of user
+  const [firstTime, setFirstTime] = useState(true);
+  const [oid, setOid] = useState(0);
+  const [username, setUsername] = useState("");          // Dynamically stores the exact username
 
   // Logout Functionality
   const handleLogout = () => {
     setLoginStatus(false);
     setUserType("");
+    setUsername(""); // Clear the username on logout
   };
-
-  // Render the component for the logged-in user
-
 
   return (
     <div className="App">
-      
       {!loginStatus ? (
         // Render the Login Page if the user is not logged in
-        <LoginPage setLoginStatus={setLoginStatus} setUserType={setUserType} />
-      ) : userType==="Admin"?<AdminDashboard  />:userType==="Chairman"?<Chairman />:userType==="Secretary"?<Secretary />:userType==="Owner"?
-       <Owner />:<Security />}
-        </div>
-    
-    )
-  }
+        <Home
+          setOid={setOid}
+          firstTime={firstTime}
+          setFirstTime={setFirstTime}
+          setLoginStatus={setLoginStatus}
+          setUserType={setUserType}
+          setUsername={setUsername} // Pass setUsername to Home
+        />
+      ) : userType === "Admin" ? (
+        <AdminDashboard />
+      ) : userType === "Chairman" ? (
+        <Chairman />
+      ) : userType === "Secretary" ? (
+        <Secretary />
+      ) : userType === "Owner" ? (
+        <div>
+  {/* Header Section */}
+  <header className="bg-white shadow-md p-4 flex justify-between items-center">
+    <h1 className="text-2xl font-bold text-gray-800">
+      Welcome, <span className="text-blue-500">{username || "Owner"}!</span>
+    </h1>
+    <button
+      className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded transition duration-200"
+      onClick={handleLogout}
+    >
+      Logout
+    </button>
+  </header>
+
+  <Owner oid={oid} username={username}  />
+</div>
+
+      ) : (
+        <Security />
+      )}
+    </div>
+  );
+}
+
 // Inline styles for the Logout button and header
 const styles = {
   header: {

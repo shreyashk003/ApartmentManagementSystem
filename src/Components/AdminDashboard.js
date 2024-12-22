@@ -4,7 +4,7 @@ import AddFlatOwner from './AddFlatOwner';
 import AddFlatDetails from './AddFlatDetails';
 import UpdateFlatOwner from './UpdateFlatOwner';
 import FinancialExpenses from './FinancialExpenses';
-
+import Apartment from './Apartment';
 function AdminDashboard() {
   return (
     <Router>
@@ -13,7 +13,7 @@ function AdminDashboard() {
 
         {/* Navbar */}
         <nav className="bg-gradient-to-r from-teal-500 to-blue-600 shadow-md rounded-md mb-8">
-          <div className="max-w-4xl mx-auto p-4 flex justify-around">
+          <div className="max-w-8xl mx-auto p-4 flex justify-around">
             <Link
               to="/add-flat-owner"
               className="text-white font-semibold hover:text-gray-200 transition-colors"
@@ -26,6 +26,16 @@ function AdminDashboard() {
             >
               Add Flat Details
             </Link>
+
+            <Link
+  to="/add-apartment-details"
+  className="text-white font-semibold hover:text-gray-200 transition-colors"
+>
+  Add Apartment Details
+</Link>
+
+
+
             <Link
               to="/update-flat-owner"
               className="text-white font-semibold hover:text-gray-200 transition-colors"
@@ -49,6 +59,8 @@ function AdminDashboard() {
             <Route path="/add-flat-details" element={<AddFlatDetails />} />
             <Route path="/update-flat-owner" element={<UpdateFlatOwner />} />
             <Route path="/financial-expenses" element={<FinancialExpenses />} />
+            <Route path="/add-apartment-details" element={<Apartment />} />
+
           </Routes>
         </div>
       </div>

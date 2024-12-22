@@ -1,0 +1,24 @@
+[{
+  "_id": {
+    "$oid": "67448c2e9726fa1cb160d5d0"
+  },
+  "Floorno": 1,
+  "BhkCount": 2,
+  "Area": 1278,
+  "Owner": {
+    "Oid": 201,
+    "OwnerFname": "Anil",
+    "OwnerLname": "Pottey",
+    "Gender": "Male",
+    "Age": 45,
+    "Cellno": {
+      "$numberLong": "7795386200"
+    },
+    "EmailId": "Anil@gmail.com",
+    "Login": "Anil",
+    "Password": "abc",
+    "FamilyCount": 4
+  },
+  "Flatnumber": 100,
+  "status": "Occupied"
+}]

@@ -1,5 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const Razorpay = require('razorpay');
+
 const cors = require("cors");
 const { MongoClient } = require("mongodb");
 
@@ -11,7 +13,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // MongoDB Connection URI
-const uri = "mongodb://localhost:27017"; // Update if needed
+const uri = "mongodb://127.0.0.1:27017"; // Update this line
 const client = new MongoClient(uri);
 let db;
 
@@ -19,7 +21,7 @@ let db;
 client
   .connect()
   .then(() => {
-    db = client.db("ApartmentManagementSysytem"); // Your database name
+    db = client.db("ApartmentManagementSysytem"); // Corrected database name
     console.log("Connected to MongoDB");
   })
   .catch((err) => {
@@ -27,12 +29,63 @@ client
     process.exit(1); // Exit the process if DB connection fails
   });
 
-/** ------------------------------
- *         LOGIN ENDPOINT
- * ----------------------------- */
+  const razorpay = new Razorpay({
+    key_id: 'rzp_test_FRoCXFr2FkZqrx', // Replace with your Razorpay Key ID
+    key_secret: '4FFZPHjeFmQO9IQTPc6mlDoK' // Replace with your Razorpay Key Secret
+  });
+
+  app.post('/api/create-order', async (req, res) => {
+    try {
+        const { amount, currency, receipt } = req.body; // Accept amount, currency, and receipt from the request
+        console.log("i am here",amount,currency,receipt)
+
+        const order = await razorpay.orders.create({
+            amount: amount * 100, // Razorpay works in paise; convert to smallest currency unit
+            currency,
+            receipt
+        });
+        console.log("i am there",amount,currency,receipt)
+
+        res.status(201).json({
+            success: true,
+            orderId: order.id,
+            amount: order.amount,
+            currency: order.currency,
+            receipt: order.receipt
+        });
+    } catch (error) {
+        console.error('Error creating order:', error);
+        res.status(500).json({ success: false, error: 'Failed to create Razorpay order' });
+    }
+  });
+  app.post('/api/capture-payment', async (req, res) => {
+    const { paymentId, amount } = req.body;
+  
+    try {
+        // Step 1: Verify Payment Status
+        const paymentDetails = await razorpay.payments.fetch(paymentId);
+        if (paymentDetails.status === 'captured') {
+            return res.json({
+                success: false,
+                message: 'Payment has already been captured.',
+            });
+        }
+  
+        // Step 2: Capture Payment
+        const response = await razorpay.payments.capture(paymentId, amount);
+        console.log(response)
+        res.json({ success: true, response });
+    } catch (error) {
+        console.error('Error capturing payment:', error);
+        res.status(500).json({ success: false, error: 'Failed to capture payment.' });
+    }
+  });
+  
+
+// Login Endpoint
 app.post("/api/login", async (req, res) => {
   const { username, password, userType } = req.body;
-console.log(username+" "+password+" "+userType)
+  console.log(username + " " + password + " " + userType);
 
   try {
     if (!username || !password || !userType) {
@@ -40,10 +93,14 @@ console.log(username+" "+password+" "+userType)
     }
 
     const collection = db.collection("Owners"); // Collection name
-    const user = await collection.find({ Login: username, Password: password, Adesignation: userType }).toArray();
-  console.log(user)
+    const user = await collection.find({
+      Login: username,
+      Password: password,
+      Adesignation: userType,
+    }).toArray();
+
     if (user.length > 0) {
-      return res.status(200).json({ message: "Login successful", userType });
+      return res.status(200).json({ message: "Login successful", userType: userType, user: user });
     } else {
       return res.status(401).json({ message: "Invalid credentials or role mismatch" });
     }
@@ -53,9 +110,7 @@ console.log(username+" "+password+" "+userType)
   }
 });
 
-/** ------------------------------
- *       POST NOTICE ENDPOINT
- * ----------------------------- */
+// Post Notice Endpoint
 app.post("/api/postNotice", async (req, res) => {
   const { notice } = req.body;
 
@@ -73,142 +128,130 @@ app.post("/api/postNotice", async (req, res) => {
   }
 });
 
-app.post("/api/insertFlatOwner",async(req,res)=>{
-  const payload=req.body
-try{
-  const collection = db.collection("Owners");
+// Insert Apartment Data
+app.post("/api/insertApartmentData", async (req, res) => {
+  const payload = req.body;
+
+  try {
+    const collection = db.collection("Apartment");
+    await collection.insertOne(payload);
+    return res.status(200).json({ message: "Apartment Data inserted successfully" });
+  } catch (error) {
+    console.error("Error inserting apartment data:", error);
+    return res.status(500).json({ message: "Server error. Please try again later." });
+  }
+});
+
+// Insert Flat Owner
+app.post("/api/insertFlatOwner", async (req, res) => {
+  const payload = req.body;
+  try {
+    const collection = db.collection("Owners");
     await collection.insertOne(payload);
     return res.status(200).json({ message: "Owner Inserted Successfully" });
   } catch (error) {
     console.error("Error inserting owner:", error);
     return res.status(500).json({ message: "Server error. Please try again later." });
   }
-})
+});
 
-app.post("/api/insertFlatDetails",async(req,res)=>{
-  const payload=req.body
-try{
-  const collection = db.collection("FlatDetails");
-    await collection.insertOne(payload);
-    return res.status(200).json({ message: "Flat Details Inserted Successfully" });
-  } catch (error) {
-    console.error("Error inserting Flat Details:", error);
-    return res.status(500).json({ message: "Server error. Please try again later." });
-  }
-})
-
-app.post("/api/Addemployees",async(req,res)=>{
-  const payload=req.body
-try{
-  const collection = db.collection("Employee");
-    await collection.insertOne(payload);
-    return res.status(200).json({ message: "Flat Details Inserted Successfully" });
-  } catch (error) {
-    console.error("Error inserting Flat Details:", error);
-    return res.status(500).json({ message: "Server error. Please try again later." });
-  }
-})
-
-
-app.put("/api/updateFlatOwner", async (req, res) => {
-  const { id, newOwner } = req.body;
-
+// Insert Flat Details
+app.post("/api/insertFlatDetails", async (req, res) => {
+  const payload = req.body;
   try {
-    const Owner=db.collection("Owners")
-    const updatedFlat = await Owner.updateOne(
-      { oid :id}, // Find the flat by its ID
-      { $set:{oname: newOwner} }, // Update the owner field
-     // Return the updated document
-    );
-
-    if (!updatedFlat) {
-      return res.status(404).json({ message: "Flat not found" });
-    }
-
-    res.status(200).json({ message: "Flat owner updated successfully", updatedFlat });
+    const collection = db.collection("FlatDetails");
+    await collection.insertOne(payload);
+    return res.status(200).json({ message: "Flat Details Inserted Successfully" });
   } catch (error) {
-    console.error("Error updating flat owner:", error);
-    res.status(500).json({ message: "Failed to update flat owner" });
+    console.error("Error inserting flat details:", error);
+    return res.status(500).json({ message: "Server error. Please try again later." });
   }
 });
 
+// Add Employees
+app.post("/api/Addemployees", async (req, res) => {
+  const payload = req.body;
+  try {
+    const collection = db.collection("Employee");
+    await collection.insertOne(payload);
+    return res.status(200).json({ message: "Employee Added Successfully" });
+  } catch (error) {
+    console.error("Error adding employee:", error);
+    return res.status(500).json({ message: "Server error. Please try again later." });
+  }
+});
 
-/** ------------------------------
- *         ADD EXPENSE ENDPOINT
- * ----------------------------- */
+// Submit Complaint
+app.post("/api/AddComplaint", async (req, res) => {
+  const payload = req.body;
+  try {
+    const collection = db.collection("Complaints");
+    const result = await collection.insertOne(payload);
+    return res.status(200).json({ message: "Complaint submitted successfully!" });
+  } catch (error) {
+    console.error("Error inserting complaint:", error);
+    return res.status(500).json({ message: "Failed to insert complaint." });
+  }
+});
+
+// Get Summary of Expenses
+app.get("/api/getsummaryexpenses", async (req, res) => {
+  try {
+    const results = await db.collection("Expenses").aggregate([
+      {
+        $addFields: {
+          amount: { $toInt: "$amount" }, // Ensure 'amount' is cast to integer
+        },
+      },
+      {
+        $group: {
+          _id: "$description",
+          total: { $sum: "$amount" }, // Sum the integer values
+        },
+      },
+    ]).toArray();
+
+    res.json(results);
+  } catch (error) {
+    console.error("Error during aggregation:", error);
+    res.status(500).json({ error: "An error occurred while processing your request." });
+  }
+});
+
+// Add Expense
 app.post("/api/addExpense", async (req, res) => {
   const payload = req.body;
-  console.log("description:",req.body);
 
   try {
-   
+    const expenseData = {
+      ...payload,
+      amount: parseInt(payload.amount, 10), // Convert `amount` to an integer
+    };
+
     const collection = db.collection("Expenses");
-    const result = await collection.insertOne(payload);
-    return res.status(200).json({ message: "Expense added successfully"});
+    await collection.insertOne(expenseData);
+
+    return res.status(200).json({ message: "Expense added successfully" });
   } catch (error) {
     console.error("Error adding expense:", error);
     return res.status(500).json({ message: "Failed to add expense" });
   }
 });
 
-/** ------------------------------
- *         SEND REMINDER ENDPOINT
- * ----------------------------- */
+// Send Reminder
 app.post("/api/sendReminder", async (req, res) => {
-  const {oid,reminder} = req.body;
-  console.log(oid+" "+reminder)
+  const { oid, reminder } = req.body;
   try {
     const collection = db.collection("Owners");
-    const result = await collection.updateOne({oid:oid},{$push:{Messages:reminder}});
-    console.log("Message inserted:", result); // Log the result
+    const result = await collection.updateOne({ oid: oid }, { $push: { Messages: reminder } });
     return res.status(200).json({ message: "Reminder sent successfully" });
   } catch (error) {
-    console.error("Error sending reminder:", error); // Log any error
+    console.error("Error sending reminder:", error);
     return res.status(500).json({ message: "Failed to send reminder" });
   }
 });
 
-app.post("/api/makeSalaryPayment", async (req, res) => {
-  const {payload,empId} = req.body;
-console.log(payload)
-console.log("hello")
-console.log(empId)
-  try {
-    const collection = db.collection("Employee");
-    const result = await collection.updateOne({empid:empId},{$push:{empsalarydet:payload}});
-    return res.status(200).json({ message: "Salary payment made successfully" ,result});
-  } catch (error) {
-    console.error("Error making salary payment:", error);
-    return res.status(500).json({ message: "Failed to make salary payment" });
-  }
-});
-
-
-
-
-/** ------------------------------
- *      POST MESSAGE ENDPOINT
- * ----------------------------- */
-app.post("/api/postMessage", async (req, res) => {
-  const { message } = req.body;
-
-  try {
-    if (!message) {
-      return res.status(400).json({ message: "Message is required" });
-    }
-
-    const collection = db.collection("Messages");
-    await collection.insertOne({ message, datePosted: new Date() });
-    return res.status(200).json({ message: "Message posted successfully" });
-  } catch (error) {
-    console.error("Error posting message:", error);
-    return res.status(500).json({ message: "Server error. Please try again later." });
-  }
-});
-
-/** ------------------------------
- *         FETCH NOTICES
- * ----------------------------- */
+// Get Notices
 app.get("/api/getNotices", async (req, res) => {
   try {
     const collection = db.collection("Notices");
@@ -220,140 +263,40 @@ app.get("/api/getNotices", async (req, res) => {
   }
 });
 
-/** ------------------------------
- *         FETCH MESSAGES
- * ----------------------------- */
-app.get("/api/getMessages", async (req, res) => {
+// Get Flat Owners
+app.get("/api/getinfo", async (req, res) => {
   try {
-    const collection = db.collection("Messages");
-    const messages = await collection.find({}).toArray();
-    return res.status(200).json(messages);
+    const collection = db.collection("Apartment");
+    const info = await collection.find({}).toArray();
+    return res.status(200).json(info);
   } catch (error) {
-    console.error("Error fetching messages:", error);
+    console.error("Error fetching apartment info:", error);
     return res.status(500).json({ message: "Server error. Please try again later." });
   }
 });
 
-/** ------------------------------
- *         ADD FLAT OWNER
- * ----------------------------- */
-app.post("/api/addFlatOwner", async (req, res) => {
-  const { name, flatNumber, contact } = req.body;
-
+// Get Flat Maintenance Data
+app.get("/api/getMaintainance/:oid", async (req, res) => {
+  const oid = parseInt(req.params.oid);
   try {
-    if (!name || !flatNumber || !contact) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
+    const collection = db.collection("Owners");
+    const cursor = collection.find({ oid: oid }, { projection: { oid: 1, Maintainance: 1, _id: 0 } });
 
-    const collection = db.collection("FlatOwners");
-    const result = await collection.insertOne({ name, flatNumber, contact });
-    return res.status(200).json({ message: "Flat owner added successfully", id: result.insertedId });
+    const maintainanceArrays = [];
+    await cursor.forEach(document => {
+      if (document.Maintainance) {
+        maintainanceArrays.push(...document.Maintainance);
+      }
+    });
+
+    return res.json(maintainanceArrays);
   } catch (error) {
-    console.error("Error adding flat owner:", error);
-    return res.status(500).json({ message: "Failed to add flat owner" });
+    console.error("Error fetching maintenance data:", error);
+    return res.status(500).json({ message: "Server error. Please try again later." });
   }
 });
 
-/** ------------------------------
- *         ADD FLAT DETAILS
- * ----------------------------- */
-app.post("/api/addFlatDetails", async (req, res) => {
-  const { flatNumber, area, ownerId, status } = req.body;
-
-  try {
-    if (!flatNumber || !area || !ownerId || !status) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    const collection = db.collection("Flats");
-    const result = await collection.insertOne({ flatNumber, area, ownerId, status });
-    return res.status(200).json({ message: "Flat details added successfully", id: result.insertedId });
-  } catch (error) {
-    console.error("Error adding flat details:", error);
-    return res.status(500).json({ message: "Failed to add flat details" });
-  }
-});
-
-/** ------------------------------
- *         UPDATE FLAT OWNER DETAILS
- * ----------------------------- */
-app.put("/api/updateFlatOwner/:flatNumber", async (req, res) => {
-  const flatNumber = req.params.flatNumber;
-  const { name, contact } = req.body;
-
-  try {
-    if (!name || !contact) {
-      return res.status(400).json({ message: "Name and contact are required" });
-    }
-
-    const collection = db.collection("FlatOwners");
-    const result = await collection.updateOne(
-      { flatNumber },
-      { $set: { name, contact } }
-    );
-
-    if (result.matchedCount > 0) {
-      return res.status(200).json({ message: "Flat owner updated successfully" });
-    } else {
-      return res.status(404).json({ message: "Flat not found" });
-    }
-  } catch (error) {
-    console.error("Error updating flat owner:", error);
-    return res.status(500).json({ message: "Failed to update flat owner" });
-  }
-});
-
-/** ------------------------------
- *         GET FLAT DETAILS
- * ----------------------------- */
-app.get("/api/getFlats", async (req, res) => {
-  try {
-    const collection = db.collection("Flats");
-    const flats = await collection.find({}).toArray();
-    return res.status(200).json(flats);
-  } catch (error) {
-    console.error("Error fetching flat details:", error);
-    return res.status(500).json({ message: "Failed to fetch flat details" });
-  }
-});
-
-/** ------------------------------
- *         GET EXPENSES
- * ----------------------------- */
-app.get("/api/getExpenses", async (req, res) => {
-  try {
-    const collection = db.collection("Expenses");
-    const expenses = await collection.find({}).toArray();
-    return res.status(200).json(expenses);
-  } catch (error) {
-    console.error("Error fetching expenses:", error);
-    return res.status(500).json({ message: "Failed to fetch expenses" });
-  }
-});
-
-/** ------------------------------
- *         ADD EXPENSE
- * ----------------------------- */
-app.post("/api/addExpense", async (req, res) => {
-  const { description, amount, date } = req.body;
-
-  try {
-    if (!description || !amount || !date) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    const collection = db.collection("Expenses");
-    const result = await collection.insertOne({ description, amount, date });
-    return res.status(200).json({ message: "Expense added successfully", id: result.insertedId });
-  } catch (error) {
-    console.error("Error adding expense:", error);
-    return res.status(500).json({ message: "Failed to add expense" });
-  }
-});
-
-/** ------------------------------
- *         START THE SERVER
- * ----------------------------- */
+// Server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });

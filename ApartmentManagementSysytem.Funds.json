@@ -1,0 +1,36 @@
+[{
+  "_id": {
+    "$oid": "6749d1290c319aa212bf517f"
+  },
+  "Fixdeposite": 300000,
+  "IntrestAccrude": 30000,
+  "DepositeDate": "25-4-2024",
+  "Expenses": [
+    {
+      "Description": "Lift Repair",
+      "Amount": 7000,
+      "Date": "25-4-2023",
+      "Agency": "Anirudh Enterprices"
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "6749d2850c319aa212bf5180"
+  },
+  "MaintainanceAmount": 450000,
+  "Year": "2024",
+  "DepositedIn": "More Bank",
+  "DepositedOn": "29-2-2024",
+  "DepositedBy": "Secretary"
+},
+{
+  "_id": {
+    "$oid": "6749d2a80c319aa212bf5181"
+  },
+  "MaintainanceAmount": 450000,
+  "Year": "2025",
+  "DepositedIn": "More Bank",
+  "DepositedOn": "29-2-2024",
+  "DepositedBy": "Secretary"
+}]

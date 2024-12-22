@@ -1,0 +1,74 @@
+[{
+  "_id": {
+    "$oid": "67448b8b9726fa1cb160d5cd"
+  },
+  "Adesignation": "Chairman",
+  "Afname": "Rajendra",
+  "Alname": "Patil",
+  "Cellno": {
+    "$numberLong": "9980428778"
+  },
+  "Gender": "Male",
+  "Emailid": "Rajendra@gmail.com",
+  "Login": "Chairman",
+  "Password": "abc",
+  "Messages": [],
+  "0id": 101
+},
+{
+  "_id": {
+    "$oid": "6744935b9726fa1cb160d5d7"
+  },
+  "Adesignation": "Secretary",
+  "Afname": "Santosh",
+  "Alname": "Kudachi",
+  "Cellno": {
+    "$numberLong": "9980428799"
+  },
+  "Gender": "Male",
+  "Emailid": "Santosh@gmail.com",
+  "Login": "Secretary",
+  "Password": "abc",
+  "Messages": [
+    ""
+  ],
+  "oid": 102
+},
+{
+  "_id": {
+    "$oid": "6744939c9726fa1cb160d5d8"
+  },
+  "Adesignation": "Admin",
+  "Afname": "Sunil",
+  "Alname": "Rodd",
+  "Cellno": {
+    "$numberLong": "9980428555"
+  },
+  "Gender": "Male",
+  "Emailid": "SunilRodd@gmail.com",
+  "Login": "Admin",
+  "Password": "abc",
+  "Messages": [
+    ""
+  ],
+  "oid": 103
+},
+{
+  "_id": {
+    "$oid": "674c37502e4f5a338d1dbc8e"
+  },
+  "Adesignation": "Owner",
+  "Afname": "Arya",
+  "Alname": "Kulkarni",
+  "Cellno": {
+    "$numberLong": "9980428888"
+  },
+  "Gender": "Male",
+  "Emailid": "arya@gmail.com",
+  "Login": "Arya",
+  "Password": "abc",
+  "Messages": [
+    ""
+  ],
+  "oid": 105
+}]

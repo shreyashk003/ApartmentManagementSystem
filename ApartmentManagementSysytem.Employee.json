@@ -1,0 +1,37 @@
+[{
+  "_id": {
+    "$oid": "674b22fefef3fc630bceb1fe"
+  },
+  "empid": "2",
+  "empcell": 1234567899,
+  "empgender": "m",
+  "empaadharno": 12345678,
+  "empadsress": "Tilakwadi",
+  "empname": "suresh",
+  "empsalarydet": [
+    {
+      "month": "jan",
+      "year": 2024,
+      "saldate": "1-01-2024",
+      "sstatus": "pending",
+      "amount": 5000
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "674c3c7af298b17f0f4822c3"
+  },
+  "empid": "201",
+  "empcell": "09739797009",
+  "empgender": "m",
+  "empaadharno": "cggffghih567697",
+  "empaddress": "tilakwadi",
+  "empname": "Shreyash Kulkarni",
+  "empsalarydet": [
+    {
+      "salary": "250000",
+      "date": "2024-12-17"
+    }
+  ]
+}]
