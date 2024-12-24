@@ -58,6 +58,54 @@ client
         res.status(500).json({ success: false, error: 'Failed to create Razorpay order' });
     }
   });
+
+  app.post('/api/updateApartmentData', async (req, res) => {
+    const {
+      Apartmentname,
+      Address,
+      AreaName,
+      City,
+      Buildername,
+      NumberOfWings,
+      SocietyName,
+    } = req.body;
+  
+    if (!Apartmentname) {
+      return res.status(400).json({ error: 'Apartmentname is required' });
+    }
+  
+    try {
+      console.log("Attempting to update apartment:", req.body); // Log request body to see what data we receive
+  
+      const result = await db.collection("Apartment").replaceOne(
+        {}, // Match the first document in the collection (since there is only one)
+        {
+          Apartmentname, // New data for the document
+          Address,
+          AreaName,
+          City,
+          Buildername,
+          NumberOfWings,
+          SocietyName,
+        }
+      );
+  
+      console.log("Update result:", result); // Log the result from the update query
+  
+      if (result.matchedCount === 0) {
+        return res.status(404).json({ error: "Apartment not found" });
+      }
+  
+      res.status(200).json({ message: "Apartment details updated successfully" });
+    } catch (error) {
+      console.error("Error updating apartment:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  
+    
+  
+
   app.post('/api/capture-payment', async (req, res) => {
     const { paymentId, amount } = req.body;
   
@@ -80,6 +128,92 @@ client
         res.status(500).json({ success: false, error: 'Failed to capture payment.' });
     }
   });
+
+  app.get("/api/getAptname", async (req, res) => {
+    try {
+      const collection = db.collection("Apartment");
+      const Apartment = await collection.find({}).toArray();
+      return res.status(200).json(Apartment);
+    } catch (error) {
+      console.error("Error ", error);
+      return res.status(500).json({ message: "Server error. Please try again later." });
+    }
+  });
+
+  
+  app.get("/api/getDues/:year", async (req, res) => {
+    const year = req.params.year;  // Keep the year as a string, no need to parseInt
+    console.log("Requested year:", year);  // Log the requested year
+    try {
+      const collection = db.collection("Owners");
+  
+      // Find documents where the 'Maintainance' array contains an element matching the year (as a string)
+      const Dues = await collection
+        .find(
+          {
+            "Maintainance.year": year  // Match the 'year' field as a string
+          },
+          {
+            projection: { Afname: 1, Alname: 1, Maintainance: 1, _id: 0 }  // Return Afname, Alname, and Maintainance fields
+          }
+        )
+        .toArray();
+      
+      console.log("Dues found:", Dues);  // Log the returned data to verify if the query is working
+      return res.status(200).json(Dues);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      return res.status(500).json({ message: "Server error. Please try again later." });
+    }
+  });
+  
+  app.post("/api/getmonthwiseexpenses", async (req, res) => {
+    let {description,year}=req.body
+    console.log(description+" "+year)
+    try {
+      const result = await db.collection("Expenses").aggregate([
+        {
+          $match: {
+            description:description,
+            year:year,
+            date: { $exists: true, $ne: null }, // Ensure only documents with valid dates are processed
+            amount: { $exists: true, $ne: null } // Ensure only valid amounts are processed
+          }
+        },
+        {
+          $addFields: {
+            month: { $month: { $toDate: "$date" } },
+            year: { $year: { $toDate: "$date" } }
+          }
+        },
+        {
+          $group: {
+            _id: { month: "$month", year: "$year" },
+            totalAmount: { $sum: { $toDouble: "$amount" } }
+          }
+        },
+        {
+          $sort: { "_id.year": 1, "_id.month": 1 }
+        }
+      ]).toArray();
+  
+      const transformedData = result.map(item => ({
+        month: item._id.month,
+        year: item._id.year,
+        totalAmount: item.totalAmount
+      }));
+  
+      console.log("Aggregation result", transformedData);
+      //const chartData = result.map(({ _id, totalAmount }) => ({
+       // month: `${_id.month}-${_id.year}`,
+        //totalAmount,
+      //}));
+      return res.send(transformedData);
+    } catch (error) {
+      console.error("Error fetching month-wise expenses:", error);
+      return res.status(500).json({ message: "Failed to fetch month-wise expenses" });
+    }
+  });       
   
 
 // Login Endpoint
@@ -109,6 +243,42 @@ app.post("/api/login", async (req, res) => {
     return res.status(500).json({ message: "Server error. Please try again later." });
   }
 });
+
+
+app.post('/api/getmonthwiseexpenses', async (req, res) => {
+  try {
+    const { description, year } = req.body;
+    if (!description || !year) {
+      return res.status(400).json({ error: "Description and year are required." });
+    }
+
+    const db = client.db('ApartmentManagementSystem');
+    const collection = db.collection('expenses');
+
+    const pipeline = [
+      { $match: { description, year: year.toString() } },
+      { $group: { _id: '$month', totalAmount: { $sum: '$amount' } } },
+      { $project: { month: '$_id', totalAmount: 1, _id: 0 } },
+      { $sort: { month: 1 } },
+    ];
+
+    const monthWiseData = await collection.aggregate(pipeline).toArray();
+
+    if (monthWiseData.length === 0) {
+      return res.status(404).json({ error: "No data found for the specified description and year." });
+    }
+
+    res.status(200).json(monthWiseData);
+  } catch (error) {
+    console.error('Error fetching month-wise expenses:', error);
+    res.status(500).json({ error: "Internal server error. Please try again later." });
+  }
+});
+
+
+ 
+
+
 
 // Post Notice Endpoint
 app.post("/api/postNotice", async (req, res) => {

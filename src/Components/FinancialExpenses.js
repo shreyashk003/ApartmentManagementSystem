@@ -18,33 +18,50 @@ const FinancialExpenses = () => {
   const [expenseData, setExpenseData] = useState([]);
   const [selectedDescription, setSelectedDescription] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
-  const [monthWiseData, setMonthWiseData] = useState(null);
+  const [monthWiseData, setMonthWiseData] = useState(null); // Null for clear differentiation
 
+  // Fetch overall summary expenses
   useEffect(() => {
     axios
       .get("http://localhost:9000/api/getsummaryexpenses")
-      .then((response) => setExpenseData(response.data || []))
+      .then((response) => {
+        setExpenseData(response.data || []);
+      })
       .catch((error) => console.error("Error fetching summary expenses:", error));
   }, [monthWiseData]);
 
+  // Fetch month-wise expenses based on the selected description
   const fetchMonthWiseExpenses = () => {
     if (!selectedDescription) {
       alert("Please select a description.");
       return;
     }
 
-    const payload = { description: selectedDescription, year: selectedYear };
+    const payload={
+      description:selectedDescription,
+      year:selectedYear
+    }
 
-    axios
-      .post("http://localhost:9000/api/getmonthwiseexpenses", payload)
+    axios.post("http://localhost:9000/api/getmonthwiseexpenses",payload )
+      
       .then((response) => {
         const data = response.data;
-        if (Array.isArray(data)) setMonthWiseData(data);
-        else alert("Error: Unable to load month-wise data.");
+        alert(data[0].month)
+
+        if (Array.isArray(data)) {
+          setMonthWiseData(data);
+        } else {
+          console.error("Unexpected response format for month-wise data:", data);
+          alert("Error: Unable to load month-wise data.");
+        }
       })
-      .catch(() => alert("Failed to fetch month-wise expenses."));
+      .catch((error) => {
+        console.error("Error fetching month-wise expenses:", error);
+        alert("Failed to fetch month-wise expenses.");
+      });
   };
 
+  // Data for the overall expenses chart
   const overallChartData = {
     labels: expenseData.map((item) => item._id || "Unknown"),
     datasets: [
@@ -59,14 +76,11 @@ const FinancialExpenses = () => {
     ],
   };
 
+  // Data for the month-wise expenses chart
   const monthWiseChartData = {
-    labels: monthWiseData
-      ? monthWiseData.map((item) =>
-          ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][
-            item.month - 1
-          ] || "Unknown"
-        )
-      : [],
+    labels: monthWiseData ? monthWiseData.map((item) => item.month===1?"January":item.month===2?"Feburury":item.month===3?"Martch": 
+    item.month===4?"April":item.month===5?"May":item.month===6?"June":item.month===7?"July":item.month===8?"August":
+    item.month===9?"September":item.month===10?"October": item.month===11?"November": "December"   || "Unknown") : [],
     datasets: [
       {
         label: `Expenses for ${selectedDescription}`,
@@ -93,54 +107,32 @@ const FinancialExpenses = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-gray-100 to-indigo-200 py-20">
-      <div className="max-w-12xl mx-auto px-16 py-10 bg-white shadow-2xl rounded-xl border border-gray-200">
-        <h1 className="text-4xl font-extrabold text-indigo-800 text-center mb-20">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-gray-100 to-indigo-200 py-10">
+      <div className="max-w-7xl mx-auto p-10 bg-white shadow-2xl rounded-xl border border-gray-200">
+        <h1 className="text-5xl font-extrabold text-indigo-800 text-center mb-12">
           📊 Financial Expenses Dashboard
         </h1>
 
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* Overall Financial Chart Box */}
-          <div className="p-10 bg-gradient-to-r from-indigo-100 to-indigo-300 shadow-lg rounded-lg border border-indigo-400">
-            <h2 className="text-3xl font-bold text-indigo-700 mb-6">Overall Financial Summary</h2>
-            <div className="h-96">
-              {expenseData.length > 0 ? (
-                <Bar data={overallChartData} options={chartOptions} />
-              ) : (
-                <p className="text-center text-gray-500 text-xl">Loading overall expense data...</p>
-              )}
-            </div>
-          </div>
-
-          {/* Month-Wise Financial Chart Box */}
-          <div className="p-10 bg-gradient-to-r from-green-100 to-green-300 shadow-lg rounded-lg border border-green-400">
-            <h2 className="text-3xl font-bold text-green-700 mb-6">Month-Wise Expenses</h2>
-            <div className="h-96">
-              {monthWiseData ? (
-                <Bar data={monthWiseChartData} options={chartOptions} />
-              ) : (
-                <p className="text-center text-gray-500 text-xl">
-                  {selectedDescription
-                    ? "Loading month-wise data for the selected description..."
-                    : "Select a description to view month-wise data."}
-                </p>
-              )}
-            </div>
-          </div>
+        {/* Overall Financial Chart */}
+        <div className="h-96 mb-12">
+          {expenseData.length > 0 ? (
+            <Bar data={overallChartData} options={chartOptions} />
+          ) : (
+            <p className="text-center text-gray-500 text-lg">Loading overall expense data...</p>
+          )}
         </div>
 
         {/* Filter Section */}
-        <div className="mt-20">
-          <h2 className="text-4xl font-semibold text-gray-800 mb-10 text-center">
+        <div className="mt-8">
+          <h2 className="text-3xl font-semibold text-gray-800 mb-6 text-center">
             Filter Month-Wise Expenses
           </h2>
-          <div className="flex flex-wrap justify-center gap-10">
+          <div className="flex flex-wrap justify-center gap-6">
             {/* Dropdown for Expense Description */}
             <select
               value={selectedDescription}
               onChange={(e) => setSelectedDescription(e.target.value)}
-              className="w-64 px-4 py-3 bg-white border rounded-lg shadow focus:outline-none"
+              className="px-4 py-3 bg-white border rounded-lg shadow focus:outline-none"
             >
               <option value="" disabled>
                 Select a description
@@ -153,29 +145,48 @@ const FinancialExpenses = () => {
               <option value="others">Others</option>
             </select>
 
-            <select
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(e.target.value)}
-              className="w-64 px-4 py-3 bg-white border rounded-lg shadow focus:outline-none"
+            <select value={selectedYear}
+              onChange={(e)=>setSelectedYear(e.target.value)}
+              className="px-4 py-3 bg-white border rounded-lg shadow focus:outline-none"
+
             >
-              <option value="" disabled>
-                Select a Year
-              </option>
-              {Array.from({ length: 2035 - 2024 + 1 }, (_, i) => 2024 + i).map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
+  <option value="" disabled>Select a Year</option>
+  <option value="2024">2024</option>
+  <option value="2025">2025</option>
+  <option value="2026">2026</option>
+  <option value="2027">2027</option>
+  <option value="2028">2028</option>
+  <option value="2029">2029</option>
+  <option value="2030">2030</option>
+  <option value="2031">2031</option>
+  <option value="2032">2032</option>
+  <option value="2033">2033</option>
+  <option value="2034">2034</option>
+  <option value="2035">2035</option>
+</select>
+
 
             {/* Button for Fetching Data */}
             <button
               onClick={fetchMonthWiseExpenses}
-              className="px-12 py-3 bg-blue-500 text-white text-xl rounded-lg shadow hover:bg-blue-600"
+              className="px-8 py-3 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600"
             >
               Get Data
             </button>
           </div>
+        </div>
+
+        {/* Month-Wise Financial Chart */}
+        <div className="h-96 mt-12">
+          {monthWiseData ? (
+            <Bar data={monthWiseChartData} options={chartOptions} />
+          ) : (
+            <p className="text-center text-gray-500 text-lg">
+              {selectedDescription
+                ? "Loading month-wise data for the selected description..."
+                : "Select a description to view month-wise data."}
+            </p>
+          )}
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import axios from "axios";
 import Employee from "./Employee";
 import MakeEmpSalary from "./MakeEmpSalary";
 import RaiseDemand from "./RaiseDemand";
+import Maintainancedues from "./Maintainancedues";
 
 function AddExpense() {
   const [expense, setExpense] = useState({
@@ -259,6 +260,17 @@ function Secretary() {
                 Raise Maintenance Demand
               </Link>
             </li>
+
+
+            <li>
+              <Link
+                to="/View-Dues"
+                className="text-teal-400 hover:text-teal-500 transition duration-300"
+              >
+              ViewMaintainanceDues
+              </Link>
+            </li>
+
           </ul>
         </nav>
         <div className="p-10">
@@ -266,6 +278,8 @@ function Secretary() {
             <Route path="/add-expense" element={<AddExpense />} />
             <Route path="/send-reminder" element={<SendReminder />} />
             <Route path="/raise-mdemand" element={<RaiseDemand />} />
+            <Route path="/View-Dues" element={<Maintainancedues />} />
+
 
             <Route
               path="/make-salary"

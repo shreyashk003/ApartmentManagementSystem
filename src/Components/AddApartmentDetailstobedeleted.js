@@ -14,6 +14,21 @@ function AddApartmentDetails() {
   const RegistrationNumber = useRef("");
   const RegistrationDate = useRef("");
 
+
+  useEffect(()=>{
+    axios.get("http://localhost:9000/api/getAptname")
+    .then(response=>{
+      ApartmentName.current.value=(response.data[0].Apartmentname)
+    })
+    .catch(err=>{
+      console.log(err)
+    })
+  },[])
+
+  const updateApartmentDetails=()=>{
+    alert("updated")
+  }
+
   const addApartmentDetails = () => {
     const payload = {
       ApartmentName: ApartmentName.current.value,
@@ -184,6 +199,14 @@ function AddApartmentDetails() {
             onClick={addApartmentDetails}
           >
             Add Apartment Details
+          </button>
+        </div>
+        <div className="text-center">
+          <button
+            className="w-full px-4 py-2 font-semibold text-white bg-gradient-to-r from-green-400 to-teal-500 rounded-md shadow-lg hover:from-green-500 hover:to-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-300"
+            onClick={updateApartmentDetails}
+          >
+            Update Apartment Details
           </button>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 
 function Apartment() {
   const Aname = useRef("");
@@ -9,6 +9,27 @@ function Apartment() {
   const Buildername = useRef("");
   const NumWings = useRef("");
   const SocietyName = useRef("");
+
+
+  var data=null
+  useEffect(() => {
+    axios
+      .get("http://localhost:9000/api/getAptname")
+      .then((response) => {
+         data = response.data[0];
+        console.log("Fetched data from API:", data); // Debugging log
+        Aname.current.value = data.Apartmentname;
+        Address.current.value = data.Address;
+        Area.current.value = data.AreaName;
+        City.current.value = data.City;
+        Buildername.current.value = data.Buildername;
+        NumWings.current.value = data.NumberOfWings;
+        SocietyName.current.value = data.SocietyName;
+      })
+      .catch((err) => {
+        console.error("Error fetching apartment data:", err); // Debugging log
+      });
+  }, []);
 
   const addApartmentdata = () => {
     const payload = {
@@ -21,13 +42,41 @@ function Apartment() {
       SocietyName: SocietyName.current.value,
     };
 
+    console.log("Payload for adding data:", payload); // Debugging log
+
     axios
       .post("http://localhost:9000/api/insertApartmentData", payload)
       .then((response) => {
+        console.log("Insert response:", response.data); // Debugging log
         alert("Apartment data inserted");
       })
       .catch((err) => {
-        console.log(err);
+        console.error("Error inserting apartment data:", err); // Debugging log
+      });
+  };
+
+  const updateApartmentDetails = () => {
+    const updatedData = {
+      Apartmentname: Aname.current.value,
+      Address: Address.current.value,
+      AreaName: Area.current.value,
+      City: City.current.value,
+      Buildername: Buildername.current.value,
+      NumberOfWings: NumWings.current.value,
+      SocietyName: SocietyName.current.value,
+    };
+
+    console.log("Payload for updating data:", updatedData); // Debugging log
+
+    axios
+      .post("http://localhost:9000/api/updateApartmentData", updatedData) // Using POST for update
+      .then((response) => {
+        console.log("Update response:", response.data); // Debugging log
+        alert("Apartment details updated successfully");
+      })
+      .catch((err) => {
+        console.error("Error updating apartment details:", err); // Debugging log
+        alert("Failed to update apartment details");
       });
   };
 
@@ -98,13 +147,24 @@ function Apartment() {
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
+        {data===null?
         <button
           type="button"
           onClick={addApartmentdata}
           className="w-full bg-blue-500 text-white font-medium p-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
         >
           Submit
-        </button>
+        </button>:""}
+
+        <div className="text-center">
+          <button
+            type="button"
+            className="w-full px-4 py-2 font-semibold text-white bg-gradient-to-r from-green-400 to-teal-500 rounded-md shadow-lg hover:from-green-500 hover:to-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-300"
+            onClick={updateApartmentDetails}
+          >
+            Update Apartment Details
+          </button>
+        </div>
       </form>
     </div>
   );
