@@ -494,6 +494,37 @@ app.post("/api/getMaintainance", async (req, res) => {
   }
 });
 
+app.post("/api/Raisedemand", async (req, res) => {
+  const { description, year, duedate, amount } = req.body;
+  const Owner=db.collection("Owners")
+  try {
+    // Check for duplicate year in the `maintenance` field for any owner
+    const duplicateCheck = await Owner.findOne({
+      "maintenance.year": year,
+    });
+
+    if (duplicateCheck) {
+      return res
+        .status(400)
+        .json({ message: "Duplicate year detected in Maintenance field." });
+    }
+    const newMaintenance = { description, year, duedate, amount };
+    const result = await Owner.updateMany(
+      {}, // Empty filter to target all documents
+      { $push: { Maintainance: newMaintenance } }
+    );
+
+    res.status(200).json({
+      message: "Demands submitted successfully.",
+      updatedCount: result.modifiedCount,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "An unexpected error occurred." });
+  }
+});
+
+
 
 
 // Server

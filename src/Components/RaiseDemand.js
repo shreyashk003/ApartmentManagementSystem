@@ -27,7 +27,7 @@ const amount=useRef("")
     } else if (response.data.message === "Demands submitted successfully") {
       alert("Demand Successfully Raised!!");
     } else {
-      alert("Unexpected response: " + response.data.message);
+      alert( response.data.message);
     }
   })
   .catch(err => {
