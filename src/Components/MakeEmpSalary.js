@@ -1,129 +1,206 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import axios from 'axios';
 
-function MakeEmpSalary() {
-  const [salaryData, setSalaryData] = useState({
-    amount: "",
-    month: "",
-    year: "",
-    date: "",
-    salaryStatus: "pending", // default salary status
-  });
+function Employee() {
+    const [employees, setEmployee] = useState([]);
+    const month = useRef("");
+    const year = useRef("");
+    const amount = useRef("");
+    const sstatus = useRef("");
+    const saldate = useRef("");
 
-  const [message, setMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+    useEffect(() => {
+        axios.get("http://localhost:9000/api/getallemployees")
+            .then(response => {
+                setEmployee(response.data);
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    }, [employees]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setSalaryData({ ...salaryData, [name]: value });
-  };
+    const makesalary = (empid) => {
+        let month1 = month.current.value;
+        let year1 = year.current.value;
+        let amount1 = amount.current.value;
+        let sstatus1 = sstatus.current.value;
+        let saldate1 = saldate.current.value;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setMessage(""); // Clear any previous messages
+        if (month1 === "" || year1 === "" || amount1 === "" || sstatus1 === "" || saldate1 === "")
+            alert("All fields are compulsory");
+        else {
+            const payload = {
+                month: month1,
+                year: year1,
+                amount: amount1,
+                sstatus: sstatus1,
+                saldate: saldate1
+            };
+            axios.post("http://localhost:9000/api/generatesalarydetails", { payload, empid })
+                .then(response => {
+                    alert("Changes added successfully!!");
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        }
+    };
 
-    try {
-      // Logic for submitting data
-      // Example: Make API request or other handling
-      // const response = await axios.post("/api/salary", salaryData);
+    return (
+        <div className="p-6 w-full">
+            <div className="flex flex-col xl:flex-row gap-6">
+                {/* Employee List Section */}
+                <div className="flex-grow">
+                    <div className="bg-[#112240] rounded-xl shadow-xl overflow-hidden">
+                        <div className="p-6 border-b border-[#1e3a8a]">
+                            <h2 className="text-2xl font-bold text-blue-400">
+                                Employee Details
+                            </h2>
+                        </div>
+                        
+                        <div className="p-6">
+                            <div className="bg-[#1e3a8a] rounded-lg px-4 py-3 mb-4">
+                                <ul className="flex items-center text-sm font-medium text-gray-100">
+                                    <li className="w-20">ID</li>
+                                    <li className="w-36">NAME</li>
+                                    <li className="w-24">GENDER</li>
+                                    <li className="w-32">CELL</li>
+                                    <li className="w-36">AADHAR</li>
+                                    <li className="w-32">ADDRESS</li>
+                                    <li className="w-32 text-center">ACTIONS</li>
+                                </ul>
+                            </div>
 
-      setMessage("Salary details added successfully!");
-      setSalaryData({
-        amount: "",
-        month: "",
-        year: "",
-        date: "",
-        salaryStatus: "pending",
-      });
-    } catch (error) {
-      setMessage("Error adding salary. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+                            <div className="space-y-4">
+                                {employees.map((employee) => (
+                                    <div key={employee.empid} className="bg-[#172a45] rounded-lg overflow-hidden">
+                                        <div className="px-4 py-3 border-b border-[#1e3a8a]">
+                                            <ul className="flex items-center text-sm">
+                                                <li className="w-20 text-blue-300">{employee.empid}</li>
+                                                <li className="w-36 text-blue-300">{employee.empname}</li>
+                                                <li className="w-24 text-blue-300">{employee.empgender}</li>
+                                                <li className="w-32 text-blue-300">{employee.empcellno}</li>
+                                                <li className="w-36 text-blue-300">{employee.empaadhaarno}</li>
+                                                <li className="w-32 text-blue-300">{employee.empaddress}</li>
+                                                <li className="w-32 text-center">
+                                                    <button
+                                                        onClick={() => makesalary(employee.empid)}
+                                                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-md text-sm transition-colors duration-200"
+                                                    >
+                                                        Make Salary
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
 
-  return (
-    <div className="bg-gradient-to-r from-gray-800 to-gray-900 min-h-screen py-10 px-5">
-      <div className="max-w-3xl mx-auto bg-gray-800 rounded-lg shadow-lg p-8">
-        <h2 className="text-3xl font-semibold text-white text-center mb-6">Add Salary Details</h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="form-group">
-            <label htmlFor="amount" className="block text-lg font-medium text-gray-300">Amount:</label>
-            <input
-              type="number"
-              id="amount"
-              name="amount"
-              value={salaryData.amount}
-              onChange={handleChange}
-              className="w-full p-3 mt-2 bg-gray-700 text-white border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="month" className="block text-lg font-medium text-gray-300">Month:</label>
-            <input
-              type="text"
-              id="month"
-              name="month"
-              value={salaryData.month}
-              onChange={handleChange}
-              className="w-full p-3 mt-2 bg-gray-700 text-white border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="year" className="block text-lg font-medium text-gray-300">Year:</label>
-            <input
-              type="number"
-              id="year"
-              name="year"
-              value={salaryData.year}
-              onChange={handleChange}
-              className="w-full p-3 mt-2 bg-gray-700 text-white border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="date" className="block text-lg font-medium text-gray-300">Salary Date:</label>
-            <input
-              type="date"
-              id="date"
-              name="date"
-              value={salaryData.date}
-              onChange={handleChange}
-              className="w-full p-3 mt-2 bg-gray-700 text-white border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="salaryStatus" className="block text-lg font-medium text-gray-300">Salary Status:</label>
-            <select
-              id="salaryStatus"
-              name="salaryStatus"
-              value={salaryData.salaryStatus}
-              onChange={handleChange}
-              className="w-full p-3 mt-2 bg-gray-700 text-white border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="paid">Paid</option>
-              <option value="pending">Pending</option>
-            </select>
-          </div>
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-4 rounded-lg font-semibold hover:bg-gradient-to-l transition duration-300"
-          >
-            {isLoading ? "Adding Salary..." : "Add Salary"}
-          </button>
-        </form>
-        {message && (
-          <p className={`mt-4 text-center ${message.includes("success") ? "text-green-500" : "text-red-500"}`}>
-            {message}
-          </p>
-        )}
-      </div>
-    </div>
-  );
+                                        <div className="p-4">
+                                            <div className="bg-[#1e3a8a] rounded-lg px-4 py-2 mb-3">
+                                                <ul className="flex items-center text-sm font-medium text-gray-100">
+                                                    <li className="w-28">MONTH</li>
+                                                    <li className="w-28">YEAR</li>
+                                                    <li className="w-28">STATUS</li>
+                                                    <li className="w-32">DATE</li>
+                                                    <li className="flex-1">AMOUNT</li>
+                                                </ul>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                {employee.empsalarydet.map((salary) => (
+                                                    <ul
+                                                        key={salary.month + salary.year}
+                                                        className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-[#1e3a8a]/20 rounded-lg transition-colors duration-200"
+                                                    >
+                                                        <li className="w-28">{salary.month}</li>
+                                                        <li className="w-28">{salary.year}</li>
+                                                        <li className="w-28">{salary.sstatus}</li>
+                                                        <li className="w-32">{salary.saldate}</li>
+                                                        <li className="flex-1">{salary.amount}</li>
+                                                    </ul>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Salary Form Section */}
+                <div className="xl:w-96">
+                    <div className="bg-[#112240] rounded-xl shadow-xl">
+                        <div className="p-6 border-b border-[#1e3a8a]">
+                            <h2 className="text-2xl font-bold text-blue-400">
+                                Salary Details
+                            </h2>
+                        </div>
+                        
+                        <div className="p-6">
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-300">Month</label>
+                                    <select
+                                        ref={month}
+                                        className="w-full bg-[#172a45] text-gray-100 p-3 rounded-lg border border-[#1e3a8a] focus:border-blue-500 focus:ring-2 focus:ring-blue-500 outline-none transition-all duration-200"
+                                    >
+                                        <option value="">Select month</option>
+                                        {["January", "February", "March", "April", "May", "June", "July", 
+                                          "August", "September", "October", "November", "December"].map(m => (
+                                            <option key={m} value={m}>{m}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-300">Year</label>
+                                    <select
+                                        ref={year}
+                                        className="w-full bg-[#172a45] text-gray-100 p-3 rounded-lg border border-[#1e3a8a] focus:border-blue-500 focus:ring-2 focus:ring-blue-500 outline-none transition-all duration-200"
+                                    >
+                                        <option value="">Select year</option>
+                                        {[2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027].map(y => (
+                                            <option key={y} value={y}>{y}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-300">Amount</label>
+                                    <input
+                                        type="text"
+                                        ref={amount}
+                                        placeholder="Enter amount"
+                                        className="w-full bg-[#172a45] text-gray-100 p-3 rounded-lg border border-[#1e3a8a] focus:border-blue-500 focus:ring-2 focus:ring-blue-500 outline-none transition-all duration-200"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-300">Status</label>
+                                    <select
+                                        ref={sstatus}
+                                        className="w-full bg-[#172a45] text-gray-100 p-3 rounded-lg border border-[#1e3a8a] focus:border-blue-500 focus:ring-2 focus:ring-blue-500 outline-none transition-all duration-200"
+                                    >
+                                        <option value="">Select status</option>
+                                        <option>Pending</option>
+                                        <option>Approved</option>
+                                    </select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-300">Date</label>
+                                    <input
+                                        type="date"
+                                        ref={saldate}
+                                        className="w-full bg-[#172a45] text-gray-100 p-3 rounded-lg border border-[#1e3a8a] focus:border-blue-500 focus:ring-2 focus:ring-blue-500 outline-none transition-all duration-200"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 }
 
-export default MakeEmpSalary;
+export default Employee;

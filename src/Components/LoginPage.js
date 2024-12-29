@@ -180,6 +180,8 @@ const LoginPage = ({ setLoginStatus, setUserType, setOid, setUsername }) => {
             <option value="Chairman">Chairman</option>
             <option value="Secretary">Secretary</option>
             <option value="Owner">Owner</option>
+            <option value="Security">Security</option>
+
           </select>
         </div>
         <button

@@ -494,6 +494,78 @@ app.post("/api/getMaintainance", async (req, res) => {
   }
 });
 
+app.post('/api/addemployee',async(req,res)=>{
+  const payload=req.body
+  console.log(payload)
+  try {
+    const result=await db.collection('Employee').insertOne(payload)
+  res.send("added employee!!!")
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+app.post('/api/adddescription',async(req,res)=>{
+  const payload=req.body
+  console.log(payload)
+  try {
+    const result=await db.collection('ExpensesDescription').insertOne(payload)
+  res.send("added employee!!!")
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+app.get('/api/getallemployees', async (req, res) => {
+  try {
+    const employees = await db.collection('Employee').find().toArray();  // Fetch all employees from MongoDB
+    res.json(employees);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching employee data', error });
+  }
+});
+
+app.post('/api/generatesalarydetails', async (req, res) => {
+  const {payload,empid}=req.body
+  console.log(payload)
+  try {
+    const result = await db.collection('Employee').updateOne({empid:empid},{$push:{empsalarydet:payload}}); 
+  //  res.send("Employee salary Added sucess") // Insert the new employee document
+    res.status(201).json({ message: 'Employee added successfully', result });
+  } catch (error) {
+    res.status(500).json({ message: 'Error saving employee data', error });
+  }
+});
+
+app.get("/api/getDescription" ,async (req,res)=>{
+  try {
+    const expenses = await db.collection('ExpensesDescription').find().toArray();  // Fetch all employees from MongoDB
+    res.json(expenses);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching data', error });
+  }
+})
+
+app.get('/api/getallvisitors', async (req, res) => {
+  try {
+    const visitors = await db.collection('visitors').find().toArray();  // Fetch all employees from MongoDB
+    res.json(visitors);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching visitors data', error });
+  }
+});
+
+app.post('/api/addvisitors',async(req,res)=>{
+  const payload=req.body
+  console.log(payload)
+  try {
+    const result=await db.collection('visitors').insertOne(payload)
+  res.send("added visitor!!!")
+  } catch (error) {
+    console.log(error)
+  }
+})
+
 app.post("/api/Raisedemand", async (req, res) => {
   const { description, year, duedate, amount } = req.body;
   const Owner=db.collection("Owners")

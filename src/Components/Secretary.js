@@ -1,15 +1,20 @@
-import React, { useState } from "react";
-import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { BrowserRouter as Router, Route, Routes, Link, useLocation } from "react-router-dom";
+import { Home, DollarSign, Bell, Plus, FileText, Eye } from "lucide-react";
 import Employee from "./Employee";
 import MakeEmpSalary from "./MakeEmpSalary";
 import RaiseDemand from "./RaiseDemand";
 import Maintainancedues from "./Maintainancedues";
+import axios from "axios";
+import AddNewExpense from "./AddNewExpense";
+import Addemployee from "./Addemployee";
 
 function AddExpense() {
+  const [description, setDescription] = useState([]);
+  const [isVisible, setVisible] = useState(false);
   const [expense, setExpense] = useState({
     date: "",
-    month:"",
+    month: "",
     amount: "",
     description: "",
     status: "",
@@ -17,26 +22,38 @@ function AddExpense() {
     personOrAgencyName: "",
   });
 
+  useEffect(() => {
+    axios.get("http://localhost:9000/api/getDescription")
+      .then(response => {
+        setDescription(response.data);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  });
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setExpense((prev) => ({ ...prev, [name]: value }));
+    if (value === "Others")
+      setVisible(true);
+    else
+      setExpense((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAddExpense = (event) => {
     event.preventDefault();
-    axios
-      .post("http://localhost:9000/api/addExpense", expense)
+    axios.post("http://localhost:9000/api/addExpense", expense)
       .then(() => {
         alert("Expense added successfully!");
         setExpense({
           date: "",
-          month:"",
+          month: "",
           amount: "",
           description: "",
           status: "",
           modeOfPayment: "",
           personOrAgencyName: "",
-        }); // Clear inputs
+        });
       })
       .catch((err) => {
         console.error("Error adding expense:", err);
@@ -45,126 +62,87 @@ function AddExpense() {
   };
 
   return (
-    <div className="max-w-lg mx-auto bg-gradient-to-br from-gray-900 via-gray-800 to-black p-10 rounded-xl shadow-2xl">
-      <h2 className="text-gray-100 text-2xl font-semibold mb-6 text-center">Add Expense</h2>
-      <form className="space-y-5" onSubmit={handleAddExpense}>
-        <div className="flex flex-col">
-          <label className="text-gray-400 mb-2">Expense Date</label>
-          <input
-            type="date"
-            name="date"
-            value={expense.date}
-            onChange={handleInputChange}
-            className="w-full px-4 py-2 bg-gray-800 text-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-600 transition"
-          />
-        </div>
-        <div className="flex flex-col">
-  <label className="text-gray-400 mb-2">Expense Month</label>
-  <select
-    name="month"
-    value={expense.month}
-    onChange={handleInputChange}
-    className="w-full px-4 py-2 bg-gray-800 text-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-600 transition"
-  >
-    <option value="" disabled>
-      Select a month
-    </option>
-    <option value="January">January</option>
-    <option value="February">February</option>
-    <option value="March">March</option>
-    <option value="April">April</option>
-    <option value="May">May</option>
-    <option value="June">June</option>
-    <option value="July">July</option>
-    <option value="August">August</option>
-    <option value="September">September</option>
-    <option value="October">October</option>
-    <option value="November">November</option>
-    <option value="December">December</option>
-  </select>
-</div>
-
-        <div className="flex flex-col">
-          <label className="text-gray-400 mb-2">Expense Amount</label>
-          <input
-            type="number"
-            name="amount"
-            value={expense.amount}
-            onChange={handleInputChange}
-            placeholder="Enter amount"
-            className="w-full px-4 py-2 bg-gray-800 text-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-600 transition"
-          />
-        </div>
-        <div className="flex flex-col">
-          <label className="text-gray-400 mb-2">Description</label>
-          <select
-            name="description"
-            value={expense.description}
-            onChange={handleInputChange}
-            className="w-full px-4 py-2 bg-gray-800 text-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-600 transition"
+    <div className="max-w-2xl mx-auto">
+      <div className="bg-[#112240] rounded-xl shadow-xl p-8">
+        <h2 className="text-2xl font-bold mb-6 text-blue-400">Add New Expense</h2>
+        <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={handleAddExpense}>
+          {[
+            { label: "Date", name: "date", type: "date" },
+            {
+              label: "Month",
+              name: "month",
+              type: "select",
+              options: ["January", "February", "March", "April", "May", "June", "July", 
+                       "August", "September", "October", "November", "December"]
+            },
+            { label: "Amount", name: "amount", type: "number", placeholder: "Enter amount" },
+            {
+              label: "Description",
+              name: "description",
+              type: "select",
+              options: description.map(D => D.Description)
+            },
+            {
+              label: "Status",
+              name: "status",
+              type: "select",
+              options: ["Paid", "Pending"]
+            },
+            {
+              label: "Payment Mode",
+              name: "modeOfPayment",
+              type: "select",
+              options: ["Cash", "Card", "UPI", "Bank Transfer"]
+            },
+            {
+              label: "Person/Agency Name",
+              name: "personOrAgencyName",
+              type: "text",
+              placeholder: "Enter name",
+              fullWidth: true
+            }
+          ].map((field) => (
+            <div key={field.name} className={`space-y-2 ${field.fullWidth ? "col-span-2" : ""}`}>
+              <label className="text-sm font-medium text-gray-300">{field.label}</label>
+              {field.type === "select" ? (
+                <select
+                  name={field.name}
+                  value={expense[field.name]}
+                  onChange={handleInputChange}
+                  className="w-full rounded-lg border border-[#234] bg-[#172a45] text-gray-100 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                >
+                  <option value="">Select {field.label}</option>
+                  {field.options.map(opt => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type={field.type}
+                  name={field.name}
+                  value={expense[field.name]}
+                  onChange={handleInputChange}
+                  placeholder={field.placeholder}
+                  className="w-full rounded-lg border border-[#234] bg-[#172a45] text-gray-100 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              )}
+            </div>
+          ))}
+          <button
+            type="submit"
+            className="col-span-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200"
           >
-            <option value="" disabled>
-              Select an expense type
-            </option>
-            <option value="electricity_bill">Electricity Bill</option>
-            <option value="water_bill">Water Bill</option>
-            <option value="plumbing_charges">Plumbing Charges</option>
-            <option value="electrician_charges">Electrician Charges</option>
-            <option value="water_supplier_charges">Water Supplier Charges</option>
-            <option value="lift_maintenance_charges">Lift Maintenance Charges</option>
-            <option value="tank_cleaning_charges">Tank Cleaning Charges</option>
-            <option value="others">Others</option>
-          </select>
-        </div>
-        <div className="flex flex-col">
-          <label className="text-gray-400 mb-2">Status</label>
-          <input
-            type="text"
-            name="status"
-            value={expense.status}
-            onChange={handleInputChange}
-            placeholder="e.g., Paid, Pending"
-            className="w-full px-4 py-2 bg-gray-800 text-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-600 transition"
-          />
-        </div>
-        <div className="flex flex-col">
-          <label className="text-gray-400 mb-2">Mode of Payment</label>
-          <input
-            type="text"
-            name="modeOfPayment"
-            value={expense.modeOfPayment}
-            onChange={handleInputChange}
-            placeholder="e.g., Cash, Card"
-            className="w-full px-4 py-2 bg-gray-800 text-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-600 transition"
-          />
-        </div>
-        <div className="flex flex-col">
-          <label className="text-gray-400 mb-2">Person/Agency Name</label>
-          <input
-            type="text"
-            name="personOrAgencyName"
-            value={expense.personOrAgencyName}
-            onChange={handleInputChange}
-            placeholder="Name of person or agency"
-            className="w-full px-4 py-2 bg-gray-800 text-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-600 transition"
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full py-3 bg-purple-600 text-white font-semibold rounded-lg shadow-lg hover:bg-purple-700 transition duration-300"
-        >
-          Add Expense
-        </button>
-      </form>
+            Add Expense
+          </button>
+        </form>
+      </div>
+      {isVisible && <AddNewExpense />}
     </div>
   );
 }
 
 function SendReminder() {
-  const [reminder, setReminder] = useState({
-    oid: "",
-    reminder: "",
-  });
+  const [reminder, setReminder] = useState({ oid: "", reminder: "" });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -173,11 +151,10 @@ function SendReminder() {
 
   const handleSendReminder = (event) => {
     event.preventDefault();
-    axios
-      .post("http://localhost:9000/api/sendReminder", reminder)
+    axios.post("http://localhost:9000/api/sendReminder", reminder)
       .then(() => {
         alert("Reminder sent successfully!");
-        setReminder({ oid: "", reminder: "" }); // Clear inputs
+        setReminder({ oid: "", reminder: "" });
       })
       .catch((err) => {
         console.error("Error sending reminder:", err);
@@ -186,116 +163,101 @@ function SendReminder() {
   };
 
   return (
-    <div className="max-w-lg mx-auto bg-gradient-to-br from-gray-900 via-gray-800 to-black p-10 rounded-xl shadow-2xl">
-      <h2 className="text-gray-100 text-2xl font-semibold mb-6 text-center">Send Reminder</h2>
-      <form className="space-y-5" onSubmit={handleSendReminder}>
-        <div className="flex flex-col col-span-2">
-          <label className="text-gray-400 mb-2">Owners ID</label>
-          <input
-            type="text"
-            name="oid"
-            value={reminder.oid}
-            onChange={handleInputChange}
-            placeholder="Enter OID"
-            className="w-full px-4 py-2 bg-gray-800 text-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
-          />
-        </div>
-        <div className="flex flex-col">
-          <label className="text-gray-400 mb-2">Reminder Message</label>
-          <textarea
-            name="reminder"
-            value={reminder.reminder}
-            onChange={handleInputChange}
-            placeholder="Type your reminder message here"
-            className="w-full px-4 py-2 bg-gray-800 text-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
-          ></textarea>
-        </div>
-        <button
-          type="submit"
-          className="w-full py-3 bg-teal-600 text-white font-semibold rounded-lg shadow-lg hover:bg-teal-700 transition duration-300"
-        >
-          Send Reminder
-        </button>
-      </form>
+    <div className="max-w-2xl mx-auto">
+      <div className="bg-[#112240] rounded-xl shadow-xl p-8">
+        <h2 className="text-2xl font-bold mb-6 text-blue-400">Send Reminder</h2>
+        <form className="space-y-6" onSubmit={handleSendReminder}>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-300">Owner's ID</label>
+            <input
+              type="text"
+              name="oid"
+              value={reminder.oid}
+              onChange={handleInputChange}
+              placeholder="Enter Owner ID"
+              className="w-full rounded-lg border border-[#234] bg-[#172a45] text-gray-100 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-300">Message</label>
+            <textarea
+              name="reminder"
+              value={reminder.reminder}
+              onChange={handleInputChange}
+              placeholder="Type your reminder message"
+              rows="4"
+              className="w-full rounded-lg border border-[#234] bg-[#172a45] text-gray-100 p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200"
+          >
+            Send Reminder
+          </button>
+        </form>
+      </div>
     </div>
+  );
+}
+
+function NavLink({ to, children, icon: Icon }) {
+  const location = useLocation();
+  const isActive = location.pathname === to;
+  
+  return (
+    <Link
+      to={to}
+      className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200
+        ${isActive 
+          ? 'bg-blue-600 text-white' 
+          : 'text-gray-300 hover:bg-[#172a45]'
+        }`}
+    >
+      <Icon size={20} />
+      <span>{children}</span>
+    </Link>
   );
 }
 
 function Secretary() {
   return (
     <Router>
-      <div className="bg-black text-white min-h-screen font-poppins">
-        <nav className="p-4 bg-gray-900 shadow-lg">
-          <ul className="flex space-x-6 justify-center text-lg font-medium">
-            <li>
-              <Link
-                to="/add-expense"
-                className="text-purple-400 hover:text-purple-500 transition duration-300"
-              >
-                Add Expense
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/send-reminder"
-                className="text-teal-400 hover:text-teal-500 transition duration-300"
-              >
-                Send Reminder
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/make-salary"
-                className="text-teal-400 hover:text-teal-500 transition duration-300"
-              >
-                Make Salary
-              </Link>
-            </li>
-
-            <li>
-              <Link
-                to="/raise-mdemand"
-                className="text-teal-400 hover:text-teal-500 transition duration-300"
-              >
-                Raise Maintenance Demand
-              </Link>
-            </li>
-
-
-            <li>
-              <Link
-                to="/View-Dues"
-                className="text-teal-400 hover:text-teal-500 transition duration-300"
-              >
-              ViewMaintainanceDues
-              </Link>
-            </li>
-
-          </ul>
+      <div className="min-h-screen bg-[#0a192f]">
+        <nav className="fixed w-64 h-full bg-[#112240] shadow-xl">
+          <div className="flex flex-col h-full">
+            <div className="p-6">
+              <h1 className="text-2xl font-bold text-blue-400">Dashboard</h1>
+            </div>
+            <div className="flex-1 px-4 space-y-2">
+              <NavLink to="/add-expense" icon={Plus}>Add Expense</NavLink>
+              <NavLink to="/send-reminder" icon={Bell}>Send Reminder</NavLink>
+              <NavLink to="/add-employee" icon={Plus}>Add Employee</NavLink>
+              <NavLink to="/make-salary" icon={DollarSign}>Make Salary</NavLink>
+              <NavLink to="/raise-mdemand" icon={FileText}>Raise Demand</NavLink>
+              <NavLink to="/View-Dues" icon={Eye}>View Dues</NavLink>
+            </div>
+          </div>
         </nav>
-        <div className="p-10">
+        
+        <main className="ml-64 p-8">
           <Routes>
             <Route path="/add-expense" element={<AddExpense />} />
             <Route path="/send-reminder" element={<SendReminder />} />
             <Route path="/raise-mdemand" element={<RaiseDemand />} />
             <Route path="/View-Dues" element={<Maintainancedues />} />
-
+            <Route path="/add-employee" element={<Addemployee/>} />
 
             <Route
               path="/make-salary"
               element={
-                <div className="flex gap-10">
-                  <div className="flex-1">
-                    <Employee />
-                  </div>
-                  <div className="flex-1">
-                    <MakeEmpSalary />
-                  </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <MakeEmpSalary />
                 </div>
               }
             />
           </Routes>
-        </div>
+        </main>
       </div>
     </Router>
   );
