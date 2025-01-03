@@ -28,11 +28,11 @@ function Maintainancedues() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-gray-800 text-white shadow-lg rounded-lg">
-      <h2 className="text-2xl font-semibold text-center text-gray-200 mb-6">Maintenance Dues</h2>
+      <h2 className="text-2xl font-semibold text-center text-yellow-400 mb-6">Maintenance Dues</h2>
 
       {/* Dropdown to select year */}
       <div className="mb-6">
-        <label htmlFor="year" className="block text-gray-300 font-medium mb-2">
+        <label htmlFor="year" className="block text-yellow-400 font-medium mb-2">
           Select Year:
         </label>
         <select

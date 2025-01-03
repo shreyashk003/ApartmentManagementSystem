@@ -69,6 +69,7 @@ function Chairman() {
       alert("Please enter a message!");
       return;
     }
+    
     try {
       await axios.post("http://localhost:9000/api/postMessage", { message });
       alert("Message posted successfully!");

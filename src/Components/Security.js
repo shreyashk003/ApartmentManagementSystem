@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Clock, LogOut, UserPlus, Users, Search } from 'lucide-react';
 import axios from 'axios';
+import VisitorsInfo from './VisitorsInfo';
 
 function Visitors({ setLoginStatus }) {
     const [visitors, setVisitors] = useState([]);
@@ -221,6 +222,7 @@ function Visitors({ setLoginStatus }) {
                         </div>
                     </div>
                 </div>
+                <VisitorsInfo></VisitorsInfo>
             </main>
         </div>
     );

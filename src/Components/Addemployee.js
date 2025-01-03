@@ -21,61 +21,119 @@ const Addemployee = () => {
       empname: empnameRef.current.value,
       empaadhaarno: empaadhaarnoRef.current.value,
       empaddress: empaddressRef.current.value,
-      empsalarydet: empsalarydetRef.current.value.split(',').map((item) => item.trim()), // Assuming salary details are entered as comma-separated values
+      empsalarydet: empsalarydetRef.current.value.split(',').map((item) => item.trim()), 
     };
 
-    
-    axios.post("http://localhost:9000/api/addemployee",payload)
-    .then(response=>{
-        alert("Employee Added")
-    })
-    .catch(err=>{
-        console.log(err)
-    })
+    try {
+      const response = await axios.post('/api/employees', payload);
+      alert('Employee added successfully!');
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error adding employee:', error);
+      alert('Failed to add employee. Please try again.');
+    }
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '500px', margin: '0 auto', fontFamily: 'Arial, sans-serif', backgroundColor: '#1e1e1e', borderRadius: '10px', color: '#fff' }}>
-      <h2 style={{ textAlign: 'center', color: '#ffcc00' }}>Add Employee</h2>
-      <form onSubmit={handleAddEmployee} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#fff' }}>
-          <FaPhone color="#ffcc00" />
-          <input type="text" ref={empcellnoRef} placeholder="Cell Number" required style={{ flex: 1, padding: '10px', border: '1px solid #555', borderRadius: '5px', backgroundColor: '#333', color: '#fff' }} />
+    <div style={{ 
+      padding: '20px', 
+      maxWidth: '600px', 
+      margin: '0 auto', 
+      fontFamily: 'Arial, sans-serif', 
+      backgroundColor: '#2c2c2c', 
+      borderRadius: '15px', 
+      color: '#f9f9f9',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
+      transition: 'transform 0.2s',
+    }}>
+      <h2 style={{ 
+        textAlign: 'center', 
+        color: '#ffc107', 
+        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)', 
+        marginBottom: '20px',
+        fontSize: '1.8rem',
+      }}>Add Employee</h2>
+      
+      <form onSubmit={handleAddEmployee} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <label style={labelStyle}>
+          <FaPhone color="#ffc107" />
+          <input type="text" ref={empcellnoRef} placeholder="Cell Number" required style={inputStyle} />
         </label>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#fff' }}>
-          <FaVenusMars color="#ffcc00" />
-          <select ref={empgenderRef} defaultValue="M" style={{ flex: 1, padding: '10px', border: '1px solid #555', borderRadius: '5px', backgroundColor: '#333', color: '#fff' }}>
+        <label style={labelStyle}>
+          <FaVenusMars color="#ffc107" />
+          <select ref={empgenderRef} defaultValue="M" style={selectStyle}>
             <option value="M">Male</option>
             <option value="F">Female</option>
             <option value="O">Other</option>
           </select>
         </label>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#fff' }}>
-          <FaIdBadge color="#ffcc00" />
-          <input type="text" ref={empidRef} placeholder="Employee ID" required style={{ flex: 1, padding: '10px', border: '1px solid #555', borderRadius: '5px', backgroundColor: '#333', color: '#fff' }} />
+        <label style={labelStyle}>
+          <FaIdBadge color="#ffc107" />
+          <input type="text" ref={empidRef} placeholder="Employee ID" required style={inputStyle} />
         </label>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#fff' }}>
-          <FaUser color="#ffcc00" />
-          <input type="text" ref={empnameRef} placeholder="Name" required style={{ flex: 1, padding: '10px', border: '1px solid #555', borderRadius: '5px', backgroundColor: '#333', color: '#fff' }} />
+        <label style={labelStyle}>
+          <FaUser color="#ffc107" />
+          <input type="text" ref={empnameRef} placeholder="Name" required style={inputStyle} />
         </label>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#fff' }}>
-          <FaIdBadge color="#ffcc00" />
-          <input type="text" ref={empaadhaarnoRef} placeholder="Aadhaar Number" required style={{ flex: 1, padding: '10px', border: '1px solid #555', borderRadius: '5px', backgroundColor: '#333', color: '#fff' }} />
+        <label style={labelStyle}>
+          <FaIdBadge color="#ffc107" />
+          <input type="text" ref={empaadhaarnoRef} placeholder="Aadhaar Number" required style={inputStyle} />
         </label>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#fff' }}>
-          <FaAddressCard color="#ffcc00" />
-          <input type="text" ref={empaddressRef} placeholder="Address" required style={{ flex: 1, padding: '10px', border: '1px solid #555', borderRadius: '5px', backgroundColor: '#333', color: '#fff' }} />
+        <label style={labelStyle}>
+          <FaAddressCard color="#ffc107" />
+          <input type="text" ref={empaddressRef} placeholder="Address" required style={inputStyle} />
         </label>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#fff' }}>
-          <FaRupeeSign color="#ffcc00" />
-          <input type="text" ref={empsalarydetRef} placeholder="Salary Details (comma-separated)" style={{ flex: 1, padding: '10px', border: '1px solid #555', borderRadius: '5px', backgroundColor: '#333', color: '#fff' }} />
+        <label style={labelStyle}>
+          <FaRupeeSign color="#ffc107" />
+          <input type="text" ref={empsalarydetRef} placeholder="Salary Details (comma-separated)" style={inputStyle} />
         </label>
-        <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#ffcc00', color: '#1e1e1e', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>
+
+        <button type="submit" style={buttonStyle} onMouseOver={(e) => e.target.style.backgroundColor = '#e0a800'} onMouseOut={(e) => e.target.style.backgroundColor = '#ffc107'}>
           Add Employee
         </button>
       </form>
     </div>
   );
+};
+
+// Styles
+const labelStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '12px',
+  fontSize: '1rem',
+  color: '#f9f9f9',
+};
+
+const inputStyle = {
+  flex: 1,
+  padding: '12px',
+  border: '1px solid #555',
+  borderRadius: '8px',
+  backgroundColor: '#404040',
+  color: '#f9f9f9',
+  fontSize: '1rem',
+};
+
+const selectStyle = {
+  ...inputStyle,
+  appearance: 'none', 
+  cursor: 'pointer',
+};
+
+const buttonStyle = {
+  padding: '12px 25px', 
+  backgroundColor: '#ffc107', 
+  color: '#2c2c2c', 
+  border: 'none', 
+  borderRadius: '8px', 
+  cursor: 'pointer', 
+  fontWeight: 'bold',
+  fontSize: '1rem',
+  transition: 'background-color 0.3s ease, transform 0.2s',
+  textTransform: 'uppercase',
+  marginTop: '20px',
+  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
 };
 
 export default Addemployee;

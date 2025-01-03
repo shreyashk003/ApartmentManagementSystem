@@ -1,6 +1,9 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const Razorpay = require('razorpay');
+const axios =require("axios")
+var unirest = require("unirest");
+
 
 const cors = require("cors");
 const { MongoClient } = require("mongodb");
@@ -9,7 +12,7 @@ const app = express();
 const PORT = 9000;
 
 // Middleware
-app.use(cors());
+app.use(cors({origin:"*"}));
 app.use(bodyParser.json());
 
 // MongoDB Connection URI
@@ -493,6 +496,133 @@ app.post("/api/getMaintainance", async (req, res) => {
     return res.status(500).json({ message: "Server error. Please try again later." });
   }
 });
+
+app.post('/api/send-sms', async (req, res) => {
+  console.log("Route Hit: /api/send-sms");
+
+  // Example payload
+  const payload = {
+      sender_id: 'FSTSMS',
+      message: 'HelloWorld',
+      language: 'english',
+      route: 'p',
+      numbers: '7795386209',
+  };
+  const payload1={
+
+    "route" : "otp",
+    "sender_id" : "FSTSMS",
+    "message" : "helloworld",
+    "variables_values" : "9999",
+    "flash" : 1,
+    "numbers" : "9480275919",
+    }
+    var req = unirest("POST", "https://www.fast2sms.com/dev/bulkV2");
+
+req.headers({
+  "authorization": "GKmTeVaYZtMUaNJzVOvq4ESeceloEPpane7ftmnQD1RNaT67sGl1V1OrBgNI"
+});
+
+/*req.form({
+  "variables_values": "5599",
+  "route": "otp",
+  "numbers": "9480275919",
+});*/
+req.form({
+  "message": "Amar Elite - Successfully implemented Software : GrihMitra",
+  "language": "english",
+  "route": "q",
+  "numbers": "7795386209",
+});
+
+req.end(function (res) {
+  if (res.error) throw new Error(res.error);
+
+  console.log(res.body);
+});
+
+  /*try {
+     console.log('Sending Request to Fast2SMS with Payload:', payload1);
+      const response = await axios.post(
+          'https://www.fast2sms.com/dev/bulkV2',
+          payload,
+          {
+              headers: {
+
+                "authorization":"IfWlpl7Mi8RA0ARZF7c64TgirXxeFX1CZWeahp7J5Ot4dQbHLuNSphWhMrJH",
+                "Content-Type":"application/json"
+                }
+          }
+      );
+      console.log('SMS Sent Successfully:', response.data);
+      res.status(200).send(response.data);
+  } catch (error) {
+      console.error('Error Occurred:', error.message);
+      if (error.response) {
+          console.error('Response Data:', error.response.data);
+      }
+      res.status(error.response?.status || 500).send(error.response?.data || error.message);
+  }*/
+});
+
+app.post('/api/visitor-count', async (req, res) => {
+  try {
+    const { year, month } = req.body;
+console.log(year)
+    // Ensure the month is zero-padded
+    const formattedMonth = month.padStart(2, '0');
+    const visitors = await db.collection('visitors').aggregate([
+      {
+        $match: {
+          vdate: { $regex: `^${year}-${formattedMonth}` }, // Match YYYY-MM
+        },
+      },
+      {
+        $group: {
+          _id: { $substr: ['$vdate', 0, 10] }, // Extract the date (YYYY-MM-DD)
+          visitorCount: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { _id: 1 }, // Sort by date
+      },
+    ]).toArray();
+
+    // Format the response
+    const response = visitors.map(item => ({
+      date: item._id,
+      count: item.visitorCount,
+    }));
+
+    res.status(200).json({ success: true, data: response });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error', error: err.message });
+  }
+});
+
+app.post('/api/sendMessage',async(req,res)=>{
+  const payload=req.body
+  console.log(payload.message)
+  let message1=payload.message
+  var req = unirest("POST", "https://www.fast2sms.com/dev/bulkV2");
+
+req.headers({
+  "authorization": "GKmTeVaYZtMUaNJzVOvq4ESeceloEPpane7ftmnQD1RNaT67sGl1V1OrBgNI"
+});
+  req.form({
+    "message": message1,
+    "language": "english",
+    "route": "q",
+    "numbers": "9480275919",
+  });
+  
+  req.end(function (res) {
+    if (res.error) throw new Error(res.error);
+  
+    console.log(res.body);
+  });
+})
 
 app.post('/api/addemployee',async(req,res)=>{
   const payload=req.body

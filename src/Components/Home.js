@@ -7,6 +7,7 @@ import Contact from "./Contact";
 import LoginPage from "./LoginPage";
 import Test from "./Test";
 import axios from "axios";
+import Testsms from "./Testsms";
 
 function Home({ setLoginStatus, setUserType, setOid, setUsername }) {
   const [apartmentName, setApartmentname] = useState('');
@@ -49,7 +50,9 @@ function Home({ setLoginStatus, setUserType, setOid, setUsername }) {
   };
 
   return (
+   <div> <Testsms></Testsms>
     <Router>
+
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-teal-50">
         {/* Navbar */}
         <nav className={`fixed w-full z-50 transition-all duration-500 ${
@@ -156,6 +159,7 @@ function Home({ setLoginStatus, setUserType, setOid, setUsername }) {
         </div>
       </div>
     </Router>
+    </div>
   );
 }
 

@@ -53,7 +53,7 @@ function Employee() {
                 <div className="flex-grow">
                     <div className="bg-[#112240] rounded-xl shadow-xl overflow-hidden">
                         <div className="p-6 border-b border-[#1e3a8a]">
-                            <h2 className="text-2xl font-bold text-blue-400">
+                            <h2 className="text-2xl font-bold text-yellow-400">
                                 Employee Details
                             </h2>
                         </div>
@@ -130,7 +130,7 @@ function Employee() {
                 <div className="xl:w-96">
                     <div className="bg-[#112240] rounded-xl shadow-xl">
                         <div className="p-6 border-b border-[#1e3a8a]">
-                            <h2 className="text-2xl font-bold text-blue-400">
+                            <h2 className="text-2xl font-bold text-yellow-400">
                                 Salary Details
                             </h2>
                         </div>

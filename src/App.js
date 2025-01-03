@@ -7,6 +7,7 @@ import Owner from "./Components/Owner";
 import Security from "./Components/Security";
 import AdminDashboard from "./Components/AdminDashboard";
 import Home from "./Components/Home";
+import VisitorsInfo from "./Components/VisitorsInfo";
 
 function App() {
   const [loginStatus, setLoginStatus] = useState(false); // Tracks if the user is logged in
